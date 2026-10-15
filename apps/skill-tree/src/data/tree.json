@@ -1,0 +1,167 @@
+{
+  "version": 1,
+  "self": {
+    "name": "Your Name",
+    "title": "Engineer · Fighter · Polyglot",
+    "glyph": "✦",
+    "bio": "Placeholder bio. Everything I've invested time in learning, mapped out like a skill tree."
+  },
+  "branches": [
+    { "id": "languages", "name": "Languages", "color": "#2f5d8a", "glyph": "文" },
+    { "id": "martial-arts", "name": "Martial Arts", "color": "#9b2c2c", "glyph": "武" },
+    { "id": "strength", "name": "Strength", "color": "#8a6a1f", "glyph": "力" },
+    { "id": "performance", "name": "Performance", "color": "#7a3b6e", "glyph": "舞" },
+    { "id": "career", "name": "Career", "color": "#2e6b5e", "glyph": "工" }
+  ],
+  "skills": [
+    {
+      "id": "english",
+      "name": "English",
+      "branchId": "languages",
+      "glyph": "EN",
+      "started": "2000-01",
+      "lastActive": "present",
+      "rating": 5,
+      "note": "Primary working language."
+    },
+    {
+      "id": "vietnamese",
+      "name": "Vietnamese",
+      "branchId": "languages",
+      "glyph": "VI",
+      "started": "2000-01",
+      "lastActive": "present",
+      "rating": 4,
+      "note": "Heritage language, spoken with family."
+    },
+    {
+      "id": "spanish",
+      "name": "Spanish",
+      "branchId": "languages",
+      "glyph": "ES",
+      "started": "2012-08",
+      "lastActive": "2016-05",
+      "rating": 2,
+      "note": "Classroom Spanish through high school and college."
+    },
+    {
+      "id": "japanese",
+      "name": "Japanese",
+      "branchId": "languages",
+      "glyph": "日",
+      "started": "2021-04",
+      "lastActive": "2024-03",
+      "rating": 2,
+      "note": "Self-study and conversation practice.",
+      "credentials": ["JLPT N4 (placeholder)"]
+    },
+    {
+      "id": "taekwondo",
+      "name": "Taekwondo",
+      "branchId": "martial-arts",
+      "glyph": "TKD",
+      "started": "2004-03",
+      "lastActive": "2011-06",
+      "rating": 4,
+      "note": "Trained through childhood; forms, sparring, and board breaking.",
+      "credentials": ["1st Dan Black Belt (placeholder)"]
+    },
+    {
+      "id": "bjj",
+      "name": "Brazilian Jiu-Jitsu",
+      "branchId": "martial-arts",
+      "glyph": "BJJ",
+      "started": "2023-01",
+      "lastActive": "present",
+      "rating": 2,
+      "note": "Gi and no-gi, a few times a week.",
+      "credentials": ["Blue Belt (placeholder)"]
+    },
+    {
+      "id": "bodybuilding",
+      "name": "Bodybuilding",
+      "branchId": "strength",
+      "glyph": "BB",
+      "started": "2017-09",
+      "lastActive": "present",
+      "rating": 4,
+      "note": "Hypertrophy programming, nutrition, and consistency."
+    },
+    {
+      "id": "dance",
+      "name": "Dance Showcases",
+      "branchId": "performance",
+      "glyph": "DS",
+      "started": "2013-09",
+      "lastActive": "2018-04",
+      "rating": 3,
+      "note": "Choreographed team pieces for campus showcases."
+    },
+    {
+      "id": "embedded",
+      "name": "Embedded Linux (C/C++)",
+      "branchId": "career",
+      "glyph": "C",
+      "started": "2014-06",
+      "lastActive": "2019-08",
+      "rating": 4,
+      "note": "Firmware and userspace software on embedded Linux devices."
+    },
+    {
+      "id": "kernel",
+      "name": "Kernel & Drivers",
+      "branchId": "career",
+      "parentId": "embedded",
+      "glyph": "K",
+      "started": "2015-03",
+      "lastActive": "2019-08",
+      "rating": 3,
+      "note": "Device drivers, board bring-up, and debugging over serial."
+    },
+    {
+      "id": "cloud-security",
+      "name": "Cloud Security",
+      "branchId": "career",
+      "parentId": "embedded",
+      "glyph": "☁",
+      "started": "2019-09",
+      "lastActive": "2024-02",
+      "rating": 4,
+      "note": "Pivoted from devices to securing cloud infrastructure.",
+      "credentials": ["Cloud security certification (placeholder)"]
+    },
+    {
+      "id": "k8s",
+      "name": "Kubernetes Hardening",
+      "branchId": "career",
+      "parentId": "cloud-security",
+      "glyph": "K8",
+      "started": "2021-01",
+      "lastActive": "2024-02",
+      "rating": 3,
+      "note": "Cluster policy, workload isolation, and supply-chain controls."
+    },
+    {
+      "id": "ai-security",
+      "name": "AI Security",
+      "branchId": "career",
+      "parentId": "cloud-security",
+      "glyph": "AI",
+      "started": "2024-03",
+      "lastActive": "present",
+      "rating": 3,
+      "note": "Securing ML systems and LLM-powered applications."
+    },
+    {
+      "id": "llm-red-teaming",
+      "name": "LLM Red Teaming",
+      "branchId": "career",
+      "parentId": "ai-security",
+      "glyph": "RT",
+      "started": "2025-01",
+      "lastActive": "present",
+      "rating": 3,
+      "note": "Prompt injection, jailbreak evaluation, and abuse testing."
+    }
+  ]
+}

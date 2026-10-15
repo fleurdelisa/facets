@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Skill Tree
 
-## Getting Started
+A video-game style skill tree of everything I've invested time in learning.
 
-First, run the development server:
+- **Center orb** is me. **Branches** (Languages, Martial Arts, Career, …) orbit it, and skills hang off the branches. A skill can grow out of another skill (e.g. Embedded Linux → Cloud Security → AI Security).
+- **Recency** drives the look: skills practiced in the last 6 months are full color with bold lines; they fade to grayscale and thin lines over 5 years of inactivity. Ongoing skills (`"lastActive": "present"`) stay fully lit.
+- **Hover** a skill to see its 1–5 self-rating as arc segments over the circle, plus a tooltip. **Click** for the detail panel.
+- **Light mode** is ink on parchment; **dark mode** is cyber with a red/blue anaglyph offset. The toggle remembers your choice and defaults to the system setting.
+- Drag to pan, scroll/pinch to zoom, `⛶` to re-fit.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Data
+
+Everything lives in [`src/data/tree.json`](src/data/tree.json):
+
+```jsonc
+{
+  "id": "cloud-security",
+  "name": "Cloud Security",
+  "branchId": "career",
+  "parentId": "embedded",      // optional: the skill this grew from (same branch)
+  "glyph": "☁",                // 1–3 chars shown in the circle
+  "started": "2019-09",
+  "lastActive": "2024-02",     // or "present"
+  "rating": 4,                 // 1–5
+  "note": "One-liner shown on hover",
+  "credentials": ["…"]
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Editing
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Editing is on automatically in `pnpm dev`. On a deployed site, open it with `?edit` once to turn editing on in that browser (`?edit=off` turns it off).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Hover the center orb → click the grey **⊕** to add a skill (or use **+ Skill** in the header).
+- Click a skill → **Edit**, **+ Follow-up skill**, or **Delete**.
+- Edits are saved in the browser's local storage only. Click **Export** to download `tree.json`, replace `src/data/tree.json` with it, and commit. **Reset** discards local edits.
 
-## Learn More
+## Development
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+pnpm install --ignore-workspace
+pnpm dev        # http://localhost:3000
+pnpm build
+```
