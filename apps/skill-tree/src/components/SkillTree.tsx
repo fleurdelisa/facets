@@ -8,6 +8,7 @@ import {
   formatPeriod,
   layoutTree,
   ratingArcPath,
+  SELF_R,
   statusLabel,
   type Layout,
   type TreeEdge,
@@ -16,7 +17,8 @@ import {
 import type { Skill } from "@/lib/types";
 import DetailPanel from "./DetailPanel";
 import { SelfForm, SkillForm } from "./EditForms";
-import ThemeToggle from "./ThemeToggle";
+import MatRulers from "./MatRulers";
+import ThemeToggle, { useTheme } from "./ThemeToggle";
 
 type View = { x: number; y: number; k: number };
 export type Modal =
@@ -57,6 +59,7 @@ export default function SkillTree() {
   const store = useTreeStore();
   const editable = useEditMode();
   const reducedMotion = useReducedMotion();
+  const theme = useTheme();
   const [now] = useState(() => new Date());
   const layout: Layout = useMemo(() => layoutTree(store.data, now), [store.data, now]);
   const nodeById = useMemo(() => new Map(layout.nodes.map((n) => [n.id, n])), [layout]);
@@ -240,6 +243,7 @@ export default function SkillTree() {
   /* ------------------------------------------------------------ render */
 
   const self = layout.nodes[0];
+  const outerR = layout.rings[layout.rings.length - 1] + 70;
   const others = layout.nodes.slice(1);
   const ready = store.loaded && !!size;
 
@@ -291,11 +295,11 @@ export default function SkillTree() {
           aria-label="Skill tree"
         >
           <defs>
-            <radialGradient id="st-self-light" cx="40%" cy="35%" r="75%">
-              <stop offset="0%" stopColor="#fffaf0" />
-              <stop offset="60%" stopColor="#efdcb3" />
-              <stop offset="100%" stopColor="#c9a467" />
-            </radialGradient>
+            {/* cutting-mat grid (light theme): 10-unit squares, heavier line every 50 */}
+            <pattern id="st-grid" width="50" height="50" patternUnits="userSpaceOnUse">
+              <path className="st-grid-minor" d="M 10 0 V 50 M 20 0 V 50 M 30 0 V 50 M 40 0 V 50 M 0 10 H 50 M 0 20 H 50 M 0 30 H 50 M 0 40 H 50" />
+              <path className="st-grid-major" d="M 0 0 V 50 M 0 0 H 50" />
+            </pattern>
             <radialGradient id="st-self-dark" cx="50%" cy="45%" r="70%">
               <stop offset="0%" stopColor="#1b2140" />
               <stop offset="70%" stopColor="#0b0e1c" />
@@ -305,13 +309,45 @@ export default function SkillTree() {
 
           {ready && (
             <g transform={`translate(${view.x} ${view.y}) scale(${view.k})`}>
+              {/* cutting mat: grid, axes and protractor guides (light theme) */}
+              <g className="st-mat" aria-hidden>
+                <rect x={-6000} y={-6000} width={12000} height={12000} fill="url(#st-grid)" />
+                <line className="st-mat-axis" x1={-6000} y1={0} x2={6000} y2={0} />
+                <line className="st-mat-axis" x1={0} y1={-6000} x2={0} y2={6000} />
+                {Array.from({ length: 24 }, (_, i) => {
+                  if (i % 6 === 0) return null;
+                  const a = (i * Math.PI) / 12;
+                  const r1 = outerR;
+                  return (
+                    <line
+                      key={i}
+                      className={`st-mat-guide ${i % 2 === 0 ? "is-major" : ""}`}
+                      x1={Math.cos(a) * (SELF_R + 30)}
+                      y1={Math.sin(a) * (SELF_R + 30)}
+                      x2={Math.cos(a) * r1}
+                      y2={Math.sin(a) * r1}
+                    />
+                  );
+                })}
+                {Array.from({ length: 12 }, (_, i) => {
+                  const deg = i * 30;
+                  const a = (-deg * Math.PI) / 180;
+                  const r = outerR + 30;
+                  return (
+                    <text key={deg} className="st-mat-degree" x={Math.cos(a) * r} y={Math.sin(a) * r} dy="0.35em">
+                      {deg}°
+                    </text>
+                  );
+                })}
+              </g>
+
               {/* decorative rings */}
               <g className="st-rings" aria-hidden>
                 {layout.rings.map((r, i) => (
                   <circle key={r} r={r} className={`st-ring ${i === 0 ? "st-ring-inner" : ""}`} />
                 ))}
                 <g>
-                  {!reducedMotion && (
+                  {!reducedMotion && theme === "dark" && (
                     <animateTransform
                       attributeName="transform"
                       type="rotate"
@@ -323,7 +359,7 @@ export default function SkillTree() {
                   )}
                   {Array.from({ length: 72 }, (_, i) => {
                     const a = (i * Math.PI) / 36;
-                    const r0 = layout.rings[layout.rings.length - 1] + 70;
+                    const r0 = outerR;
                     const len = i % 6 === 0 ? 14 : 6;
                     return (
                       <line
@@ -336,7 +372,7 @@ export default function SkillTree() {
                       />
                     );
                   })}
-                  <circle r={layout.rings[layout.rings.length - 1] + 70} className="st-ring st-ring-outer" />
+                  <circle r={outerR} className="st-ring st-ring-outer" />
                 </g>
               </g>
 
@@ -413,6 +449,15 @@ export default function SkillTree() {
               >
                 <circle r={self.r + 22} className="st-hit" />
                 <g className="st-self-orb" {...nodeProps(self)} aria-label={`${store.data.self.name}, about`}>
+                  <path
+                    className="st-self-cross"
+                    d={[0, 1, 2, 3]
+                      .map((q) => {
+                        const [dx, dy] = [[1, 0], [0, 1], [-1, 0], [0, -1]][q];
+                        return `M ${dx * (self.r + 20)} ${dy * (self.r + 20)} L ${dx * (self.r + 40)} ${dy * (self.r + 40)}`;
+                      })
+                      .join(" ")}
+                  />
                   <circle r={self.r + 16} className="st-self-ring" />
                   <circle r={self.r + 9} className="st-self-ring2" />
                   <circle r={self.r} className="st-ana st-ana-r" cx={-3} />
@@ -471,6 +516,8 @@ export default function SkillTree() {
             </g>
           )}
         </svg>
+
+        {ready && theme === "light" && <MatRulers view={view} size={size} />}
 
         {/* hover tooltip */}
         {ready && hovered && hovered.kind !== "self" && (
