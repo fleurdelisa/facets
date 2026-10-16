@@ -5,7 +5,7 @@ A video-game style skill tree of everything I've invested time in learning.
 - **Center orb** is me. **Branches** (Languages, Martial Arts, Career, …) orbit it, and skills hang off the branches. A skill can grow out of another skill (e.g. Embedded Linux → Cloud Security → AI Security).
 - **Recency** drives the look: skills practiced in the last 6 months are full color with bold lines; they fade to grayscale and thin lines over 5 years of inactivity. Ongoing skills (`"lastActive": "present"`) stay fully lit.
 - **Hover** a skill to see its 1–5 self-rating as arc segments over the circle, plus a tooltip. **Click** for the detail panel.
-- **Light mode** is ink on parchment; **dark mode** is cyber with a red/blue anaglyph offset. The toggle remembers your choice and defaults to the system setting.
+- **Light mode** is a self-healing cutting mat (grid that pans/zooms with the tree, edge rulers, protractor guides); **dark mode** is cyber with a red/blue anaglyph offset. The toggle remembers your choice and defaults to the system setting.
 - Drag to pan, scroll/pinch to zoom, `⛶` to re-fit.
 
 ## Data

@@ -8,6 +8,20 @@ export const THEME_KEY = "facets.theme";
 /** Inline script that sets `data-theme` before first paint. */
 export const themeInitScript = `(function(){try{var t=localStorage.getItem("${THEME_KEY}");if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="light"}})();`;
 
+/** Current theme, kept in sync with `data-theme` on <html>. */
+export function useTheme(): Theme {
+  const [theme, setTheme] = useState<Theme>("light");
+  useEffect(() => {
+    const root = document.documentElement;
+    const read = () => setTheme(root.dataset.theme === "dark" ? "dark" : "light");
+    read();
+    const mo = new MutationObserver(read);
+    mo.observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => mo.disconnect();
+  }, []);
+  return theme;
+}
+
 export default function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("light");
 
