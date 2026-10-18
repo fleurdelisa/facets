@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f5f0;
+  --foreground: #1c1a17;
+  --card: #ffffff;
+  --muted: #6b665d;
+  --border: #e3ded3;
+  --accent: #c2410c;
+  --accent-soft: #fde7d9;
+  --ring-a: #f1ece2;
+  --ring-b: #e8e1d3;
+  --china: #c81e3a;
+  --japan: #2563eb;
+  --korea: #0f9d76;
+  --vietnam: #b7791f;
+  --reference: #6b665d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #14130f;
+    --foreground: #ece8df;
+    --card: #1d1b17;
+    --muted: #a39d91;
+    --border: #34312a;
+    --accent: #fb923c;
+    --accent-soft: #3a2415;
+    --ring-a: #24221d;
+    --ring-b: #2c2923;
+    --china: #f2667d;
+    --japan: #6c9cff;
+    --korea: #34d3a3;
+    --vietnam: #e5b04a;
+    --reference: #a39d91;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+button {
+  cursor: pointer;
+}
