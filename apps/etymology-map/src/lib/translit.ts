@@ -54,14 +54,14 @@ function mapChars(text: string, table: Record<string, string>): string {
 
 export function romanize(text: string, lang: string): string | undefined {
   if (lang === "sr" || lang === "sh") return mapChars(text, SERBIAN);
-  if (/[Ѐ-ӿ]/.test(text)) return mapChars(text, CYRILLIC);
-  if (/[Ͱ-Ͽ]/.test(text)) {
+  if (/[\u0400-\u04FF]/.test(text)) return mapChars(text, CYRILLIC);
+  if (/[\u0370-\u03FF]/.test(text)) {
     let t = text.toLowerCase();
     for (const [g, l] of GREEK_DIGRAPHS) t = t.split(g).join(l);
     return mapChars(t, GREEK);
   }
-  if (/[Ⴀ-ჿ]/.test(text)) return mapChars(text, GEORGIAN);
-  if (/[԰-֏]/.test(text)) {
+  if (/[\u10A0-\u10FF]/.test(text)) return mapChars(text, GEORGIAN);
+  if (/[\u0530-\u058F]/.test(text)) {
     // ու is the vowel u
     return mapChars(text.replace(/ու/g, "u"), ARMENIAN);
   }
