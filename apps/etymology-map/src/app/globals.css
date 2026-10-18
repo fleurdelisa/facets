@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #f6f2ea;
+  --paper-raised: #fdfbf7;
+  --ink: #2a2622;
+  --ink-soft: #5f574e;
+  --ink-faint: #958b7f;
+  --line: #e2dacd;
+  --accent: #b5893e;
+  --ocean: #e6ebea;
+  --graticule: #d5dcdb;
+  --land-empty: #ddd6ca;
+  --border: #fdfbf7;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+}
+
+html,
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+.country {
+  transition:
+    fill 450ms ease,
+    fill-opacity 250ms ease;
+}
+
+.map-label {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  fill: var(--ink);
+  stroke: var(--paper-raised);
+  stroke-opacity: 0.85;
+  paint-order: stroke;
+  stroke-linejoin: round;
+  text-anchor: middle;
+  dominant-baseline: central;
+  animation: label-in 400ms ease;
+}
+
+@keyframes label-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.wheel {
+  mask-image: linear-gradient(to bottom, transparent, black 22%, black 78%, transparent);
+}
