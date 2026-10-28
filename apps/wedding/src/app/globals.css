@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+:root {
+  --background: #faf6f0;
+  --surface: #fffdf9;
+  --surface-2: #f3ede4;
+  --foreground: #2b2522;
+  --muted: #7a6f68;
+  --border: #e4dbcf;
+  --accent: #a8646f;
+  --accent-soft: #f3e3e3;
+
+  --tie-blood: #8a4f58;
+  --tie-inlaw: #5f7596;
+  --tie-friend: #6f8f72;
+
+  --rsvp-yes: #5d8a63;
+  --rsvp-yes-soft: #e3efe2;
+  --rsvp-pending: #b98a3c;
+  --rsvp-pending-soft: #f6ecd9;
+  --rsvp-no: #9a8f8a;
+  --rsvp-no-soft: #ece8e5;
+
+  --grid-dot: #e6ddd1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #1a1716;
+    --surface: #24201e;
+    --surface-2: #2d2826;
+    --foreground: #f1e9e2;
+    --muted: #a99d95;
+    --border: #3b3431;
+    --accent: #d7949d;
+    --accent-soft: #3d2b2e;
+
+    --tie-blood: #d08f98;
+    --tie-inlaw: #93a9cc;
+    --tie-friend: #9cc09f;
+
+    --rsvp-yes: #8cc293;
+    --rsvp-yes-soft: #263529;
+    --rsvp-pending: #e0b46a;
+    --rsvp-pending-soft: #3a3122;
+    --rsvp-no: #8f8580;
+    --rsvp-no-soft: #322d2b;
+
+    --grid-dot: #2f2a28;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-tie-blood: var(--tie-blood);
+  --color-tie-inlaw: var(--tie-inlaw);
+  --color-tie-friend: var(--tie-friend);
+  --color-rsvp-yes: var(--rsvp-yes);
+  --color-rsvp-yes-soft: var(--rsvp-yes-soft);
+  --color-rsvp-pending: var(--rsvp-pending);
+  --color-rsvp-pending-soft: var(--rsvp-pending-soft);
+  --color-rsvp-no: var(--rsvp-no);
+  --color-rsvp-no-soft: var(--rsvp-no-soft);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-cormorant);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+.canvas-grid {
+  background-image: radial-gradient(var(--grid-dot) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-card-in {
+  animation: card-in 120ms ease-out;
+}

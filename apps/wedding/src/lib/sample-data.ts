@@ -1,0 +1,47 @@
+import { COUPLE_ID, GuestData, PARTNER_LEFT, PARTNER_RIGHT, Person } from "./types";
+
+type Seed = Omit<Person, "rsvp"> & Partial<Pick<Person, "rsvp">>;
+
+const seed: Seed[] = [
+  // The couple
+  { id: PARTNER_LEFT, name: "You", connectedTo: null, relation: "inlaw", label: "Getting married!", rsvp: "yes" },
+  { id: PARTNER_RIGHT, name: "Your Partner", connectedTo: null, relation: "inlaw", label: "Getting married!", rsvp: "yes" },
+
+  // Your family
+  { id: "l-mom", name: "Linda Tran", connectedTo: PARTNER_LEFT, relation: "blood", label: "Mom", birthday: "1966-04-12", rsvp: "yes", dietary: "Pescatarian" },
+  { id: "l-dad", name: "Robert Tran", connectedTo: PARTNER_LEFT, relation: "blood", label: "Dad", birthday: "1963-09-02", rsvp: "yes" },
+  { id: "l-grandma", name: "Grandma Mai", connectedTo: "l-mom", relation: "blood", label: "Grandma (Mom's side)", birthday: "1940-01-20", rsvp: "pending", notes: "Needs a seat near the aisle; bring a shawl, venue gets cold." },
+  { id: "l-aunt", name: "Aunt Kim", connectedTo: "l-mom", relation: "blood", label: "Aunt", rsvp: "yes" },
+  { id: "l-uncle-in-law", name: "Uncle Dave", connectedTo: "l-aunt", relation: "inlaw", label: "Aunt Kim's husband", rsvp: "yes" },
+  { id: "l-cousin", name: "Jenny Park", connectedTo: "l-aunt", relation: "blood", label: "Cousin", birthday: "1995-07-30", rsvp: "pending", plusOne: true },
+  { id: "l-uncle", name: "Uncle Tom", connectedTo: "l-dad", relation: "blood", label: "Uncle (Dad's brother)", rsvp: "no", notes: "Lives abroad, sending a gift instead." },
+  { id: "l-brother", name: "Kevin Tran", connectedTo: PARTNER_LEFT, relation: "blood", label: "Brother", birthday: "1992-11-05", rsvp: "yes" },
+  { id: "l-sil", name: "Amy Tran", connectedTo: "l-brother", relation: "inlaw", label: "Sister-in-law", rsvp: "yes", dietary: "Vegetarian" },
+  { id: "l-nephew", name: "Leo Tran", connectedTo: "l-brother", relation: "blood", label: "Nephew (ring bearer)", birthday: "2020-03-14", rsvp: "yes" },
+
+  // Partner's family
+  { id: "r-mom", name: "Susan Miller", connectedTo: PARTNER_RIGHT, relation: "blood", label: "Mom", birthday: "1965-06-18", rsvp: "yes" },
+  { id: "r-stepdad", name: "Greg Miller", connectedTo: "r-mom", relation: "inlaw", label: "Stepdad", rsvp: "yes" },
+  { id: "r-grandpa", name: "Grandpa Joe", connectedTo: "r-mom", relation: "blood", label: "Grandpa", birthday: "1938-12-01", rsvp: "pending", dietary: "Low sodium" },
+  { id: "r-sister", name: "Emma Johnson", connectedTo: PARTNER_RIGHT, relation: "blood", label: "Sister (maid of honor)", birthday: "1997-02-22", rsvp: "yes" },
+  { id: "r-sister-bf", name: "Marcus Lee", connectedTo: "r-sister", relation: "inlaw", label: "Emma's boyfriend", rsvp: "pending" },
+  { id: "r-dad", name: "Paul Johnson", connectedTo: PARTNER_RIGHT, relation: "blood", label: "Dad", rsvp: "pending", notes: "Seat away from Greg's table." },
+
+  // Your friends
+  { id: "lf-roommate", name: "Priya Shah", connectedTo: PARTNER_LEFT, relation: "friend", label: "College roommate", birthday: "1994-08-09", rsvp: "yes", notes: "Introduced us at her birthday party in 2019!" },
+  { id: "lf-roommate-husband", name: "Sam Shah", connectedTo: "lf-roommate", relation: "inlaw", label: "Priya's husband", rsvp: "yes" },
+  { id: "lf-work", name: "Diego Alvarez", connectedTo: PARTNER_LEFT, relation: "friend", label: "Work friend", rsvp: "pending", plusOne: true },
+
+  // Partner's friends
+  { id: "rf-best", name: "Chris Wong", connectedTo: PARTNER_RIGHT, relation: "friend", label: "Best friend since high school", rsvp: "yes" },
+  { id: "rf-climb", name: "Taylor Brooks", connectedTo: PARTNER_RIGHT, relation: "friend", label: "Climbing buddy", rsvp: "no" },
+
+  // Shared friends
+  { id: "sf-neighbors", name: "Nora Ellis", connectedTo: COUPLE_ID, relation: "friend", label: "Neighbor", rsvp: "yes", notes: "Watering our plants during the honeymoon." },
+  { id: "sf-neighbors-wife", name: "June Ellis", connectedTo: "sf-neighbors", relation: "inlaw", label: "Nora's wife", rsvp: "yes" },
+  { id: "sf-trivia", name: "Ben Carter", connectedTo: COUPLE_ID, relation: "friend", label: "Trivia night team", rsvp: "pending" },
+];
+
+export function sampleData(): GuestData {
+  return { version: 1, people: seed.map((p) => ({ rsvp: "pending", ...p })) };
+}
