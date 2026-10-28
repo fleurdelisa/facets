@@ -1,15 +1,30 @@
-import { COUPLE_ID, PARTNER_LEFT, PARTNER_RIGHT, Person, Relation, isPartner } from "./types";
+import {
+  COUPLE_ID,
+  PARTNER_LEFT,
+  PARTNER_RIGHT,
+  Person,
+  Relation,
+  isGroup,
+  isPartner,
+} from "./types";
 
-export type SectionKey = "leftFamily" | "rightFamily" | "leftFriends" | "rightFriends" | "shared";
+export type SectionKey =
+  | "leftFamily"
+  | "rightFamily"
+  | "leftFriends"
+  | "rightFriends"
+  | "shared";
 
 export interface TreeNode {
   person: Person;
   children: TreeNode[];
-  /** People in this subtree, including this person. */
+  /** Guests in this subtree, including this person (groups don't count themselves). */
   size: number;
   /** Subtree headcount: people plus their plus-ones. */
   headcount: number;
   attending: number;
+  /** Guests in this subtree marked unlikely to come. */
+  unlikely: number;
   /** 1 for people directly connected to the couple. */
   depth: number;
   section: SectionKey;
@@ -22,6 +37,7 @@ export interface Section {
   size: number;
   headcount: number;
   attending: number;
+  unlikely: number;
 }
 
 export interface GuestTree {
@@ -32,10 +48,21 @@ export interface GuestTree {
   right: Person;
 }
 
-export const SECTION_ORDER: SectionKey[] = ["leftFamily", "rightFamily", "leftFriends", "rightFriends", "shared"];
+export const SECTION_ORDER: SectionKey[] = [
+  "leftFamily",
+  "rightFamily",
+  "leftFriends",
+  "rightFriends",
+  "shared",
+];
 
-export function sectionTitle(key: SectionKey, left: Person, right: Person): string {
-  const possessive = (p: Person) => (p.name.trim().toLowerCase() === "you" ? "Your" : `${p.name}'s`);
+export function sectionTitle(
+  key: SectionKey,
+  left: Person,
+  right: Person,
+): string {
+  const possessive = (p: Person) =>
+    p.name.trim().toLowerCase() === "you" ? "Your" : `${p.name}'s`;
   switch (key) {
     case "leftFamily":
       return `${possessive(left)} family`;
@@ -51,12 +78,20 @@ export function sectionTitle(key: SectionKey, left: Person, right: Person): stri
 }
 
 /** Resolve `connectedTo`, falling back to the couple for missing parents and broken cycles. */
-function resolveParents(people: Person[], byId: Map<string, Person>): Map<string, string> {
+function resolveParents(
+  people: Person[],
+  byId: Map<string, Person>,
+): Map<string, string> {
   const parent = new Map<string, string>();
   for (const p of people) {
     if (isPartner(p.id)) continue;
     const target = p.connectedTo;
-    parent.set(p.id, target && (target === COUPLE_ID || (byId.has(target) && target !== p.id)) ? target : COUPLE_ID);
+    parent.set(
+      p.id,
+      target && (target === COUPLE_ID || (byId.has(target) && target !== p.id))
+        ? target
+        : COUPLE_ID,
+    );
   }
   // Break cycles: walk up from every node; if we revisit, cut the link to the couple.
   for (const p of people) {
@@ -87,25 +122,40 @@ export function buildTree(people: Person[]): GuestTree {
   }
 
   const nodes = new Map<string, TreeNode>();
-  const build = (id: string, depth: number, section: SectionKey, parentId: string): TreeNode => {
+  const build = (
+    id: string,
+    depth: number,
+    section: SectionKey,
+    parentId: string,
+  ): TreeNode => {
     const person = byId.get(id)!;
-    const children = (childIds.get(id) ?? []).map((c) => build(c, depth + 1, section, id));
+    const children = (childIds.get(id) ?? []).map((c) =>
+      build(c, depth + 1, section, id),
+    );
+    const guest = isGroup(person) ? 0 : 1;
+    const heads = guest * (1 + (person.plusOne ? 1 : 0));
     const node: TreeNode = {
       person,
       children,
       depth,
       section,
       parentId,
-      size: 1 + sum(children, (c) => c.size),
-      headcount: 1 + (person.plusOne ? 1 : 0) + sum(children, (c) => c.headcount),
+      size: guest + sum(children, (c) => c.size),
+      headcount: heads + sum(children, (c) => c.headcount),
       attending:
-        (person.rsvp === "yes" ? 1 + (person.plusOne ? 1 : 0) : 0) + sum(children, (c) => c.attending),
+        (person.rsvp === "yes" ? heads : 0) + sum(children, (c) => c.attending),
+      unlikely:
+        (guest && person.unlikely ? 1 : 0) + sum(children, (c) => c.unlikely),
     };
     nodes.set(id, node);
     return node;
   };
 
-  const rootsOf = (parentId: string, section: SectionKey, keep: (r: Relation) => boolean) =>
+  const rootsOf = (
+    parentId: string,
+    section: SectionKey,
+    keep: (r: Relation) => boolean,
+  ) =>
     (childIds.get(parentId) ?? [])
       .filter((id) => keep(byId.get(id)!.relation))
       .map((id) => build(id, 1, section, parentId));
@@ -118,23 +168,51 @@ export function buildTree(people: Person[]): GuestTree {
     size: sum(roots, (r) => r.size),
     headcount: sum(roots, (r) => r.headcount),
     attending: sum(roots, (r) => r.attending),
+    unlikely: sum(roots, (r) => r.unlikely),
   });
 
   const sections: Record<SectionKey, Section> = {
-    leftFamily: makeSection("leftFamily", rootsOf(PARTNER_LEFT, "leftFamily", family)),
-    rightFamily: makeSection("rightFamily", rootsOf(PARTNER_RIGHT, "rightFamily", family)),
-    leftFriends: makeSection("leftFriends", rootsOf(PARTNER_LEFT, "leftFriends", friend)),
-    rightFriends: makeSection("rightFriends", rootsOf(PARTNER_RIGHT, "rightFriends", friend)),
+    leftFamily: makeSection(
+      "leftFamily",
+      rootsOf(PARTNER_LEFT, "leftFamily", family),
+    ),
+    rightFamily: makeSection(
+      "rightFamily",
+      rootsOf(PARTNER_RIGHT, "rightFamily", family),
+    ),
+    leftFriends: makeSection(
+      "leftFriends",
+      rootsOf(PARTNER_LEFT, "leftFriends", friend),
+    ),
+    rightFriends: makeSection(
+      "rightFriends",
+      rootsOf(PARTNER_RIGHT, "rightFriends", friend),
+    ),
     // Anything hanging off the couple counts as a shared friend, whatever its relation says.
-    shared: makeSection("shared", rootsOf(COUPLE_ID, "shared", () => true)),
+    shared: makeSection(
+      "shared",
+      rootsOf(COUPLE_ID, "shared", () => true),
+    ),
   };
 
   return {
     byId,
     nodes,
     sections,
-    left: byId.get(PARTNER_LEFT) ?? { id: PARTNER_LEFT, name: "You", connectedTo: null, relation: "inlaw", rsvp: "yes" },
-    right: byId.get(PARTNER_RIGHT) ?? { id: PARTNER_RIGHT, name: "Partner", connectedTo: null, relation: "inlaw", rsvp: "yes" },
+    left: byId.get(PARTNER_LEFT) ?? {
+      id: PARTNER_LEFT,
+      name: "You",
+      connectedTo: null,
+      relation: "inlaw",
+      rsvp: "yes",
+    },
+    right: byId.get(PARTNER_RIGHT) ?? {
+      id: PARTNER_RIGHT,
+      name: "Partner",
+      connectedTo: null,
+      relation: "inlaw",
+      rsvp: "yes",
+    },
   };
 }
 
@@ -167,7 +245,7 @@ export function subtreeIds(tree: GuestTree, id: string): Set<string> {
 }
 
 export function totals(tree: GuestTree) {
-  const people = [...tree.byId.values()];
+  const people = [...tree.byId.values()].filter((p) => !isGroup(p));
   const count = (f: (p: Person) => boolean) => people.filter(f).length;
   return {
     people: people.length,
@@ -175,7 +253,10 @@ export function totals(tree: GuestTree) {
     yes: count((p) => p.rsvp === "yes"),
     pending: count((p) => p.rsvp === "pending"),
     no: count((p) => p.rsvp === "no"),
-    attendingHeadcount: count((p) => p.rsvp === "yes") + count((p) => p.rsvp === "yes" && !!p.plusOne),
+    unlikely: count((p) => !!p.unlikely),
+    attendingHeadcount:
+      count((p) => p.rsvp === "yes") +
+      count((p) => p.rsvp === "yes" && !!p.plusOne),
   };
 }
 
@@ -184,11 +265,22 @@ export function connectionText(tree: GuestTree, person: Person): string {
   if (isPartner(person.id)) return "One half of the couple";
   const node = tree.nodes.get(person.id);
   const parentId = node?.parentId ?? person.connectedTo;
-  if (!parentId || parentId === COUPLE_ID) return "Friend of the couple";
+  if (!parentId || parentId === COUPLE_ID)
+    return isGroup(person) ? "Group of shared friends" : "Friend of the couple";
   const parent = tree.byId.get(parentId);
+  if (parent && isGroup(parent)) return `In ${parent.name}`;
   if (parent && parent.name.trim().toLowerCase() === "you") {
-    return person.relation === "blood" ? "Your family" : person.relation === "inlaw" ? "Your in-law" : "Your friend";
+    return person.relation === "blood"
+      ? "Your family"
+      : person.relation === "inlaw"
+        ? "Your in-law"
+        : "Your friend";
   }
-  const verb = person.relation === "blood" ? "Family of" : person.relation === "inlaw" ? "Partner/in-law of" : "Friend of";
+  const verb =
+    person.relation === "blood"
+      ? "Family of"
+      : person.relation === "inlaw"
+        ? "Partner/in-law of"
+        : "Friend of";
   return `${verb} ${parent?.name ?? "unknown"}`;
 }

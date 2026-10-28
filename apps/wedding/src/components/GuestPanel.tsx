@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { GuestTree } from "@/lib/tree";
-import { Person, Relation, isPartner } from "@/lib/types";
+import { Person, Relation, isGroup, isPartner } from "@/lib/types";
 import { TIE_SHORT, TieGlyph } from "./atoms";
 import { PersonDetails, PersonForm, RsvpPicker } from "./PersonCard";
 
@@ -49,10 +49,32 @@ export function GuestPanel({
     >
       <div className="mb-3 flex items-center justify-between">
         <p className="text-xs font-medium tracking-wide text-muted uppercase">
-          {state.mode === "new" ? "New guest" : state.mode === "edit" ? "Edit guest" : "Guest card"}
+          {isGroup(person)
+            ? state.mode === "new"
+              ? "New group"
+              : state.mode === "edit"
+                ? "Edit group"
+                : "Group"
+            : state.mode === "new"
+              ? "New guest"
+              : state.mode === "edit"
+                ? "Edit guest"
+                : "Guest card"}
         </p>
-        <button onClick={onClose} className="rounded-md p-1 text-muted hover:bg-surface-2 hover:text-foreground" aria-label="Close">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <button
+          onClick={onClose}
+          className="rounded-md p-1 text-muted hover:bg-surface-2 hover:text-foreground"
+          aria-label="Close"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          >
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
         </button>
@@ -62,13 +84,24 @@ export function GuestPanel({
         <div className="flex flex-col gap-5">
           <PersonDetails person={person} tree={tree} />
 
-          <div>
-            <p className="mb-1.5 text-xs font-medium text-muted">Quick RSVP</p>
-            <RsvpPicker value={person.rsvp} onChange={(rsvp) => onUpdate(person.id, { rsvp })} />
-          </div>
+          {!isGroup(person) && (
+            <div>
+              <p className="mb-1.5 text-xs font-medium text-muted">
+                Quick RSVP
+              </p>
+              <RsvpPicker
+                value={person.rsvp}
+                onChange={(rsvp) => onUpdate(person.id, { rsvp })}
+              />
+            </div>
+          )}
 
           <div>
-            <p className="mb-1.5 text-xs font-medium text-muted">Add someone connected to {person.name.split(" ")[0]}</p>
+            <p className="mb-1.5 text-xs font-medium text-muted">
+              {isGroup(person)
+                ? `Add someone to ${person.name}`
+                : `Add someone connected to ${person.name.split(" ")[0]}`}
+            </p>
             <div className="grid grid-cols-3 gap-1.5">
               {(["blood", "inlaw", "friend"] as Relation[]).map((r) => (
                 <button
@@ -93,8 +126,14 @@ export function GuestPanel({
               <button
                 onClick={() => {
                   const kids = tree.nodes.get(person.id)?.children.length ?? 0;
-                  const extra = kids ? `\n\nThe ${kids} ${kids === 1 ? "person" : "people"} connected through them will move up a level.` : "";
-                  if (window.confirm(`Remove ${person.name} from the guest list?${extra}`)) onDelete(person.id);
+                  const extra = kids
+                    ? `\n\nThe ${kids} ${kids === 1 ? "person" : "people"} connected through them will move up a level.`
+                    : "";
+                  const what = isGroup(person)
+                    ? `the group "${person.name}"`
+                    : `${person.name} from the guest list`;
+                  if (window.confirm(`Remove ${what}?${extra}`))
+                    onDelete(person.id);
                 }}
                 className="rounded-md border border-border px-3 py-2 text-sm text-muted hover:border-accent hover:text-accent"
               >
@@ -110,7 +149,11 @@ export function GuestPanel({
           tree={tree}
           isNew={state.mode === "new"}
           onSave={(p) => onSave(p, state.mode === "new")}
-          onCancel={() => (state.mode === "new" ? onClose() : onChange({ mode: "view", id: person.id }))}
+          onCancel={() =>
+            state.mode === "new"
+              ? onClose()
+              : onChange({ mode: "view", id: person.id })
+          }
         />
       )}
     </aside>

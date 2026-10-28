@@ -6,6 +6,8 @@ export type Rsvp = "pending" | "yes" | "no";
 export interface Person {
   id: string;
   name: string;
+  /** Groups ("Dad's extended family") organize guests in the tree but aren't guests themselves. */
+  kind?: "group";
   /** Id of the person this guest connects to, or COUPLE_ID for shared friends. Null only for the couple. */
   connectedTo: string | null;
   /** Tie to `connectedTo`. Ignored for the couple themselves. */
@@ -18,6 +20,8 @@ export interface Person {
   notes?: string;
   rsvp: Rsvp;
   plusOne?: boolean;
+  /** Invited, but probably won't make it. */
+  unlikely?: boolean;
   dietary?: string;
   email?: string;
   phone?: string;
@@ -35,7 +39,10 @@ export const COUPLE_ID = "couple";
 
 export const PARTNER_IDS = [PARTNER_LEFT, PARTNER_RIGHT] as const;
 
-export const isPartner = (id: string) => id === PARTNER_LEFT || id === PARTNER_RIGHT;
+export const isGroup = (p: Person) => p.kind === "group";
+
+export const isPartner = (id: string) =>
+  id === PARTNER_LEFT || id === PARTNER_RIGHT;
 
 export const RELATION_LABEL: Record<Relation, string> = {
   blood: "Blood relative",

@@ -6,26 +6,73 @@ import { ListView } from "@/components/ListView";
 import { TreeView } from "@/components/TreeView";
 import { newId, parseGuestData, useGuestStore } from "@/lib/store";
 import { buildTree, totals } from "@/lib/tree";
-import { PARTNER_LEFT, Person, Relation } from "@/lib/types";
+import { PARTNER_LEFT, Person, Relation, isGroup } from "@/lib/types";
 
 type ViewMode = "tree" | "list";
 
 export default function Home() {
-  const { data, loaded, updatePerson, addPerson, removePerson, replaceAll, reset } = useGuestStore();
+  const {
+    data,
+    loaded,
+    updatePerson,
+    addPerson,
+    removePerson,
+    replaceAll,
+    reset,
+  } = useGuestStore();
   const tree = useMemo(() => buildTree(data.people), [data.people]);
   const sum = totals(tree);
   const [view, setView] = useState<ViewMode>("tree");
   const [panel, setPanel] = useState<PanelState | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  // Groups start folded so a big list stays readable; unfold them one at a time.
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
+
+  const toggleGroup = useCallback(
+    (id: string) =>
+      setExpanded((prev) => {
+        const next = new Set(prev);
+        if (!next.delete(id)) next.add(id);
+        return next;
+      }),
+    [],
+  );
+  const setAllGroups = useCallback(
+    (expand: boolean) =>
+      setExpanded(
+        expand
+          ? new Set(data.people.filter(isGroup).map((p) => p.id))
+          : new Set(),
+      ),
+    [data.people],
+  );
+  /** Unfold every group above someone so they're visible in the tree. */
+  const reveal = (connectedTo: string | null) => {
+    const ids: string[] = [];
+    const seen = new Set<string>();
+    for (let cur = connectedTo; cur && !seen.has(cur); ) {
+      seen.add(cur);
+      const p = tree.byId.get(cur);
+      if (!p) break;
+      if (isGroup(p)) ids.push(p.id);
+      cur = p.connectedTo;
+    }
+    if (ids.length) setExpanded((prev) => new Set([...prev, ...ids]));
+  };
 
   const selectedId = panel && panel.mode !== "new" ? panel.id : null;
   const close = useCallback(() => setPanel(null), []);
 
   const startNew = (connectedTo: string, relation: Relation) =>
-    setPanel({ mode: "new", draft: { id: newId(), name: "", connectedTo, relation, rsvp: "pending" } });
+    setPanel({
+      mode: "new",
+      draft: { id: newId(), name: "", connectedTo, relation, rsvp: "pending" },
+    });
 
   const exportJson = () => {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "wedding-guests.json";
@@ -47,19 +94,45 @@ export default function Home() {
     <div className="flex h-dvh flex-col">
       <header className="z-10 flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-border bg-surface/90 px-4 py-2.5 sm:gap-y-3 backdrop-blur sm:px-6">
         <div>
-          <h1 className="font-serif text-2xl leading-none font-semibold sm:text-3xl">Guest Tree</h1>
-          <p className="mt-1 hidden text-xs text-muted sm:block">Family on top, friends below, the two of you in the middle.</p>
+          <h1 className="font-serif text-2xl leading-none font-semibold sm:text-3xl">
+            Guest Tree
+          </h1>
+          <p className="mt-1 hidden text-xs text-muted sm:block">
+            Family on top, friends below, the two of you in the middle.
+          </p>
         </div>
 
         <dl className="order-last flex w-full flex-wrap items-center gap-1.5 text-xs sm:gap-2 lg:order-none lg:w-auto">
-          <Stat label="Total guests" value={sum.people} hint={sum.headcount > sum.people ? `${sum.headcount} with plus-ones` : undefined} strong />
-          <Stat label="Attending" value={sum.yes} tone="bg-rsvp-yes" hint={sum.attendingHeadcount > sum.yes ? `${sum.attendingHeadcount} heads` : undefined} />
+          <Stat
+            label="Total guests"
+            value={sum.people}
+            hint={
+              sum.headcount > sum.people
+                ? `${sum.headcount} with plus-ones`
+                : undefined
+            }
+            strong
+          />
+          <Stat
+            label="Attending"
+            value={sum.yes}
+            tone="bg-rsvp-yes"
+            hint={
+              sum.attendingHeadcount > sum.yes
+                ? `${sum.attendingHeadcount} heads`
+                : undefined
+            }
+          />
           <Stat label="Waiting" value={sum.pending} tone="bg-rsvp-pending" />
           <Stat label="Declined" value={sum.no} tone="bg-rsvp-no" />
+          {sum.unlikely > 0 && <Stat label="Unlikely" value={sum.unlikely} />}
         </dl>
 
         <div className="ml-auto flex items-center gap-2">
-          <div className="flex rounded-lg border border-border bg-surface p-0.5 text-sm" role="tablist">
+          <div
+            className="flex rounded-lg border border-border bg-surface p-0.5 text-sm"
+            role="tablist"
+          >
             {(["tree", "list"] as ViewMode[]).map((v) => (
               <button
                 key={v}
@@ -79,15 +152,41 @@ export default function Home() {
             + Add guest
           </button>
           <details className="relative">
-            <summary className="cursor-pointer list-none rounded-lg border border-border px-2.5 py-1.5 text-sm text-muted hover:text-foreground" aria-label="More">
+            <summary
+              className="cursor-pointer list-none rounded-lg border border-border px-2.5 py-1.5 text-sm text-muted hover:text-foreground"
+              aria-label="More"
+            >
               •••
             </summary>
             <div className="absolute right-0 z-40 mt-1 flex w-48 flex-col rounded-lg border border-border bg-surface p-1 text-sm shadow-lg">
+              <MenuItem
+                onClick={() =>
+                  setPanel({
+                    mode: "new",
+                    draft: {
+                      id: newId(),
+                      kind: "group",
+                      name: "",
+                      connectedTo: PARTNER_LEFT,
+                      relation: "blood",
+                      rsvp: "pending",
+                    },
+                  })
+                }
+              >
+                New group…
+              </MenuItem>
               <MenuItem onClick={exportJson}>Export JSON</MenuItem>
-              <MenuItem onClick={() => fileRef.current?.click()}>Import JSON…</MenuItem>
+              <MenuItem onClick={() => fileRef.current?.click()}>
+                Import JSON…
+              </MenuItem>
               <MenuItem
                 onClick={() => {
-                  if (window.confirm("Replace your guest list with the sample data?")) {
+                  if (
+                    window.confirm(
+                      "Replace your guest list with the sample data?",
+                    )
+                  ) {
                     reset();
                     setPanel(null);
                   }
@@ -111,11 +210,25 @@ export default function Home() {
         </div>
       </header>
 
-      <main className={`relative min-h-0 flex-1 ${view === "list" ? "overflow-y-auto" : ""}`}>
+      <main
+        className={`relative min-h-0 flex-1 ${view === "list" ? "overflow-y-auto" : ""}`}
+      >
         {!loaded ? null : view === "tree" ? (
-          <TreeView tree={tree} selectedId={selectedId} onSelect={(id) => setPanel({ mode: "view", id })} />
+          <TreeView
+            tree={tree}
+            selectedId={selectedId}
+            onSelect={(id) => setPanel({ mode: "view", id })}
+            expanded={expanded}
+            onToggleGroup={toggleGroup}
+            onSetAllGroups={setAllGroups}
+          />
         ) : (
-          <ListView tree={tree} selectedId={selectedId} onSelect={(id) => setPanel({ mode: "view", id })} onUpdate={updatePerson} />
+          <ListView
+            tree={tree}
+            selectedId={selectedId}
+            onSelect={(id) => setPanel({ mode: "view", id })}
+            onUpdate={updatePerson}
+          />
         )}
       </main>
 
@@ -133,6 +246,7 @@ export default function Home() {
           onSave={(p: Person, isNew) => {
             if (isNew) addPerson(p);
             else updatePerson(p.id, p);
+            reveal(p.connectedTo);
             setPanel({ mode: "view", id: p.id });
           }}
           onAddConnection={(to, relation) => startNew(to.id, relation)}
@@ -142,22 +256,46 @@ export default function Home() {
   );
 }
 
-function Stat({ label, value, tone, hint, strong }: { label: string; value: number; tone?: string; hint?: string; strong?: boolean }) {
+function Stat({
+  label,
+  value,
+  tone,
+  hint,
+  strong,
+}: {
+  label: string;
+  value: number;
+  tone?: string;
+  hint?: string;
+  strong?: boolean;
+}) {
   return (
-    <div className={`flex items-center gap-2 rounded-lg border border-border px-2.5 py-1.5 ${strong ? "bg-foreground text-background" : "bg-surface"}`}>
+    <div
+      className={`flex items-center gap-2 rounded-lg border border-border px-2.5 py-1.5 ${strong ? "bg-foreground text-background" : "bg-surface"}`}
+    >
       {tone && <span className={`size-2 rounded-full ${tone}`} />}
       <dt className={strong ? "opacity-80" : "text-muted"}>{label}</dt>
       <dd className="text-sm font-semibold tabular-nums">{value}</dd>
-      {hint && <span className={strong ? "opacity-70" : "text-muted"}>({hint})</span>}
+      {hint && (
+        <span className={strong ? "opacity-70" : "text-muted"}>({hint})</span>
+      )}
     </div>
   );
 }
 
-function MenuItem({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+function MenuItem({
+  onClick,
+  children,
+}: {
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
   return (
     <button
       onClick={(e) => {
-        (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open");
+        (
+          e.currentTarget.closest("details") as HTMLDetailsElement | null
+        )?.removeAttribute("open");
         onClick();
       }}
       className="rounded-md px-2.5 py-1.5 text-left hover:bg-surface-2"

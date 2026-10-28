@@ -24,11 +24,17 @@ export function parseGuestData(raw: string): GuestData | null {
     const data = JSON.parse(raw);
     if (!data || !Array.isArray(data.people)) return null;
     const people: Person[] = data.people
-      .filter((p: Partial<Person>) => p && typeof p.id === "string" && typeof p.name === "string")
+      .filter(
+        (p: Partial<Person>) =>
+          p && typeof p.id === "string" && typeof p.name === "string",
+      )
       .map((p: Person) => ({
         ...p,
         rsvp: p.rsvp === "yes" || p.rsvp === "no" ? p.rsvp : "pending",
-        relation: p.relation === "blood" || p.relation === "friend" ? p.relation : "inlaw",
+        relation:
+          p.relation === "blood" || p.relation === "friend"
+            ? p.relation
+            : "inlaw",
         connectedTo: isPartner(p.id) ? null : p.connectedTo,
       }));
     for (const id of PARTNER_IDS) {
@@ -66,7 +72,10 @@ export function useGuestStore() {
   }, [data, loaded]);
 
   const updatePerson = useCallback((id: string, patch: Partial<Person>) => {
-    setData((d) => ({ ...d, people: d.people.map((p) => (p.id === id ? { ...p, ...patch } : p)) }));
+    setData((d) => ({
+      ...d,
+      people: d.people.map((p) => (p.id === id ? { ...p, ...patch } : p)),
+    }));
   }, []);
 
   const addPerson = useCallback((person: Person) => {
@@ -83,7 +92,11 @@ export function useGuestStore() {
         ...d,
         people: d.people
           .filter((p) => p.id !== id)
-          .map((p) => (p.connectedTo === id ? { ...p, connectedTo: target.connectedTo } : p)),
+          .map((p) =>
+            p.connectedTo === id
+              ? { ...p, connectedTo: target.connectedTo }
+              : p,
+          ),
       };
     });
   }, []);
@@ -91,5 +104,13 @@ export function useGuestStore() {
   const replaceAll = useCallback((next: GuestData) => setData(next), []);
   const reset = useCallback(() => setData(sampleData()), []);
 
-  return { data, loaded, updatePerson, addPerson, removePerson, replaceAll, reset };
+  return {
+    data,
+    loaded,
+    updatePerson,
+    addPerson,
+    removePerson,
+    replaceAll,
+    reset,
+  };
 }
