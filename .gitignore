@@ -12,6 +12,8 @@ out/
 
 # Production
 build
+dist/
+*.tsbuildinfo
 
 # Misc
 .DS_Store
@@ -41,6 +43,3 @@ pnpm-debug.log*
 # Turbo
 .turbo
 
-# pnpm
-pnpm-lock.yaml
-pnpm-workspace.yaml
