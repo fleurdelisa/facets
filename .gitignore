@@ -43,3 +43,6 @@ pnpm-debug.log*
 # Turbo
 .turbo
 
+# Node compile cache (created by npm during package builds)
+node-compile-cache/
+
