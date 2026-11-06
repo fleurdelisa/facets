@@ -22,4 +22,5 @@ Run from the repo root: `pnpm install`, `pnpm dev`, `pnpm lint`, `pnpm build`.
   ## Screenshots (if any)
   ```
 
+- **No links to Claude sessions** (`claude.ai/code/...`) anywhere in this repo: not in commit messages, PR descriptions, comments, or files. This repo is public.
 - **Verify before pushing:** run `pnpm lint` and `pnpm build` at the root and report the results.
