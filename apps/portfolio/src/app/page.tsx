@@ -59,7 +59,7 @@ export default function Home() {
         <div className="container relative z-10 px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">
-              Hi, I'm <span className="text-primary">Lisa Le</span>
+              Hi, I&apos;m <span className="text-primary">Lisa Le</span>
             </h1>
             <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
               I build digital experiences with modern web technologies and a focus on performance, accessibility, and user experience.
@@ -99,10 +99,10 @@ export default function Home() {
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div>
                 <p className="text-lg text-muted-foreground mb-6">
-                  I'm a full-stack developer with a love for creating beautiful, functional, and user-centric digital experiences. With a strong foundation in modern web technologies, I bring ideas to life through clean, efficient code, and thoughtful design.
+                  I&apos;m a full-stack developer with a love for creating beautiful, functional, and user-centric digital experiences. With a strong foundation in modern web technologies, I bring ideas to life through clean, efficient code, and thoughtful design.
                 </p>
                 <p className="text-lg text-muted-foreground mb-8">
-                  When I'm not coding, you can find me at the climbing gym, taking hip-hop dance classes, or reflecting on the human experience.
+                  When I&apos;m not coding, you can find me at the climbing gym, taking hip-hop dance classes, or reflecting on the human experience.
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <Button variant="outline" size="lg" asChild className="gap-2">
