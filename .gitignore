@@ -12,6 +12,8 @@ out/
 
 # Production
 build
+dist/
+*.tsbuildinfo
 
 # Misc
 .DS_Store
@@ -41,6 +43,6 @@ pnpm-debug.log*
 # Turbo
 .turbo
 
-# pnpm
-pnpm-lock.yaml
-pnpm-workspace.yaml
+# Node compile cache (created by npm during package builds)
+node-compile-cache/
+
