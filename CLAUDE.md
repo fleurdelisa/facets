@@ -2,7 +2,7 @@
 
 A pnpm + Turborepo monorepo of personal microapps.
 
-- `apps/*`: one deployable Next.js app per folder (e.g. `skill-tree`, `portfolio`)
+- `apps/*`: one deployable Next.js app per folder (e.g. `garden`, the site at fleurdelisa.dev, and `skill-tree`)
 - `packages/*`: shared code (`@facets/ui`)
 - `gallery/*/intention.md`: ideas for apps that aren't built yet
 
